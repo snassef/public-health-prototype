@@ -1,3 +1,4 @@
+install.packages(c("RPostgres", "sf"))
 library(shiny)
 library(shinydashboard)
 library(tidyverse)
