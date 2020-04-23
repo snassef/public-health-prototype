@@ -11,8 +11,7 @@ my_table <- "scratch.homelessness_cases_311"
 
 con <- read_civis(my_table, 
                   database="City of Los Angeles - Postgres")
-
-print(con)
+print(head(con))
 
 neighborhood_councils <- sf::st_read(
   "../data/neighborhood_council_boundaries.geojson"
