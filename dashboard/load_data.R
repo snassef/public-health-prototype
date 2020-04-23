@@ -4,6 +4,7 @@ library(sys)
 library(stringr)
 library(tidyverse)
 library(sf)
+library(civis)
 
 
 my_table <- "scratch.homelessness_cases_311"
@@ -45,7 +46,7 @@ state_boundary <- sf::st_read('../data/state-boundary.geojson')
   
 
 load_data <- function() {
-  data <- tbl(con) %>% collect()
+  data <- con %>% collect()
   
   data$closeddate <- as_date(data$closeddate) 
   
