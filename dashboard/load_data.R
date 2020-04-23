@@ -5,24 +5,13 @@ library(stringr)
 library(tidyverse)
 library(sf)
 
-conn_string <- Sys.getenv('POSTGRES_URI')
 
-split <- conn_string %>% str_split(":") 
+my_table <- "scratch.homelessness_cases_311"
 
-username <- split[[1]][2] %>% str_remove('//')
+con <- read_civis(my_table, 
+                  database="City of Los Angeles - Postgres")
 
-second_split <- split[[1]][3] %>% str_split('@') 
-password <- second_split[[1]][1]
-host <- second_split[[1]][2]
-
-db_name <- split[[1]][4] %>% str_remove('5432/')
-
-con <- dbConnect(RPostgres::Postgres(),
-                 dbname = db_name, 
-                 host = host,
-                 port = 5432, 
-                 user = username,
-                 password = password)
+print(con)
 
 neighborhood_councils <- sf::st_read(
   "../data/neighborhood_council_boundaries.geojson"
@@ -56,7 +45,7 @@ state_boundary <- sf::st_read('../data/state-boundary.geojson')
   
 
 load_data <- function() {
-  data <- tbl(con, dbplyr::in_schema('"public-health"','"311-cases-homelessness"')) %>% collect()
+  data <- tbl(con) %>% collect()
   
   data$closeddate <- as_date(data$closeddate) 
   
@@ -113,9 +102,9 @@ load_data <- function() {
   return(data)
 }
 
-summarize_cleanstat <- function() {
-  cleanstat <- tbl(con, dbplyr::in_schema('"public-health"','"cleanstat"')) %>%
-    filter(Year ==  "2018") %>%
-    filter(Quarter == "Q3") %>%
-    collect()
+#summarize_cleanstat <- function() {
+#  cleanstat <- tbl(con, dbplyr::in_schema('"public-health"','"cleanstat"')) %>%
+#    filter(Year ==  "2018") %>%
+#    filter(Quarter == "Q3") %>%
+#    collect()
 }
