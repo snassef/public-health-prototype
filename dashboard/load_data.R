@@ -9,10 +9,6 @@ library(civis)
 
 my_table <- "scratch.homelessness_cases_311"
 
-con <- read_civis(my_table, 
-                  database="City of Los Angeles - Postgres")
-print(head(con))
-
 neighborhood_councils <- sf::st_read(
   "../data/neighborhood_council_boundaries.geojson"
 )
@@ -45,11 +41,14 @@ state_boundary <- sf::st_read('../data/state-boundary.geojson')
   
 
 load_data <- function() {
-  data <- con %>% collect()
+  data <- read_civis(my_table, 
+                     database="City of Los Angeles - Postgres")
   
-  data$closeddate <- as_date(data$closeddate) 
+  data$closeddate <- as_date(data$ClosedDate) 
   
   data <- data %>% drop_na('closeddate')
+  
+  print(data)
   
   #' This script loads the data files and ensures the correct data types are used
   
