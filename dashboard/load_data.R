@@ -7,7 +7,7 @@ library(sf)
 library(civis)
 
 
-my_table <- "scratch.homelessness_cases_311"
+
 
 neighborhood_councils <- sf::st_read(
   "../data/neighborhood_council_boundaries.geojson"
@@ -39,18 +39,19 @@ county_boundary <- sf::st_read('../data/la_county.geojson')
 state_boundary <- sf::st_read('../data/state-boundary.geojson')
 
   
+my_table <- "scratch.homelessness_cases_311"
 
 load_data <- function() {
   data <- read_civis(my_table, 
                      database="City of Los Angeles - Postgres")
   
-  data$closeddate <- as_date(data$ClosedDate) 
+  data$closeddate <- as_date(data$closeddate, "%m/%d/%Y") 
+  #above not working replaced with s striptime function 
+  #data$ClosedDate <- strptime(data$ClosedDate, "%m/%d/%Y %H:%M:%S", tz='America/Los_Angeles').cast()
   
-  data <- data %>% drop_na('closeddate')
+  data <- data %>% filter(!is.na(closeddate)) #drops all open cases, but seems to not actually be dropping anything
   
-  print(data)
-  
-  #' This script loads the data files and ensures the correct data types are used
+    #' This script loads the data files and ensures the correct data types are used
   
   # column names with proper spacing / underscores 
   col_names_311 <- c(
