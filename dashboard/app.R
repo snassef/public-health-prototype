@@ -1,4 +1,3 @@
-install.packages(c("RPostgres", "sf"))
 library(shiny)
 library(shinydashboard)
 library(tidyverse)
@@ -15,6 +14,7 @@ source("value_counts.R")
 
 # Read data -------------------------------------------------------------------- 
 data <- load_data()
+print('loaded data')
 geo_data <- data %>%
   drop_na("longitude", "latitude") %>%
   sf::st_as_sf(coords=c("longitude", "latitude"), crs=4326)

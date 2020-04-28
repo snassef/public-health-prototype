@@ -4,25 +4,10 @@ library(sys)
 library(stringr)
 library(tidyverse)
 library(sf)
+library(civis)
 
-conn_string <- Sys.getenv('POSTGRES_URI')
 
-split <- conn_string %>% str_split(":") 
 
-username <- split[[1]][2] %>% str_remove('//')
-
-second_split <- split[[1]][3] %>% str_split('@') 
-password <- second_split[[1]][1]
-host <- second_split[[1]][2]
-
-db_name <- split[[1]][4] %>% str_remove('5432/')
-
-con <- dbConnect(RPostgres::Postgres(),
-                 dbname = db_name, 
-                 host = host,
-                 port = 5432, 
-                 user = username,
-                 password = password)
 
 neighborhood_councils <- sf::st_read(
   "../data/neighborhood_council_boundaries.geojson"
@@ -43,10 +28,10 @@ latimes_neighborhoods <- sf::st_read(
 # CORONAVIRUS 
 
 coronavirus_deaths <- read_csv(
-  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv"
+  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv"
 )
 coronavirus_cases <- read_csv(
-  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv"
+  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv"
 )
 
 county_boundary <- sf::st_read('../data/la_county.geojson')
@@ -54,15 +39,20 @@ county_boundary <- sf::st_read('../data/la_county.geojson')
 state_boundary <- sf::st_read('../data/state-boundary.geojson')
 
   
+my_table <- "public_health.homelessness_cases_311"
 
 load_data <- function() {
-  data <- tbl(con, dbplyr::in_schema('"public-health"','"311-cases-homelessness"')) %>% collect()
+
+  data <- read_civis(my_table, 
+                     database="City of Los Angeles - Postgres")
   
-  data$closeddate <- as_date(data$closeddate) 
+  data$closeddate <- as.Date(as.character(strptime(data$closeddate, "%m/%d/%Y"))) 
+  #above not working replaced with s striptime function 
+  #data$ClosedDate <- strptime(data$ClosedDate, "%m/%d/%Y %H:%M:%S", tz='America/Los_Angeles').cast()
   
-  data <- data %>% drop_na('closeddate')
+  data <- data %>% filter(!is.na(closeddate)) #drops all open cases, but seems to not actually be dropping anything
   
-  #' This script loads the data files and ensures the correct data types are used
+    #' This script loads the data files and ensures the correct data types are used
   
   # column names with proper spacing / underscores 
   col_names_311 <- c(
@@ -80,7 +70,7 @@ load_data <- function() {
   )
   
   data <- data %>% 
-           select(-c('index')) %>%
+           #select(-c('index')) %>%
            rename(
                   'action_taken' = 'actiontaken',
                   'address_verified' = 'addressverified',
@@ -114,8 +104,8 @@ load_data <- function() {
 }
 
 summarize_cleanstat <- function() {
-  cleanstat <- tbl(con, dbplyr::in_schema('"public-health"','"cleanstat"')) %>%
-    filter(Year ==  "2018") %>%
-    filter(Quarter == "Q3") %>%
-    collect()
+ 
+  cleanstat <- read_civis('public_health.cleanstat','City of Los Angeles - Postgres') %>%
+              filter(Year ==  "2018") %>%
+              filter(Quarter == "Q3")
 }
