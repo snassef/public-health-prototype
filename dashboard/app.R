@@ -321,7 +321,7 @@ server <- function(input, output) {
   output$coronavirusCasesLAC <- renderInfoBox({
     infoBox(
       "Coronavirus Cases in LA County",
-      coronavirus_cases %>% filter(`Province_State` == "Los Angeles, California") %>% select(ends_with("20")) %>% select(tail(names(.), 1))
+      coronavirus_cases %>% filter(`Admin2` == "Los Angeles") %>% select(ends_with("20")) %>% select(tail(names(.), 1))
     )
   })
   
@@ -335,7 +335,7 @@ server <- function(input, output) {
   output$coronavirusDeathsLAC <- renderInfoBox({
     infoBox(
       "Coronavirus Deaths in LA County",
-      coronavirus_deaths %>% filter(`Province_State` == "Los Angeles, California") %>% select(ends_with("20")) %>% select(tail(names(.), 1))
+      coronavirus_deaths %>% filter(`Admin2` == "Los Angeles") %>% select(ends_with("20")) %>% select(tail(names(.), 1))
     )
   })
   ########################################
