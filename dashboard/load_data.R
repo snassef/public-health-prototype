@@ -47,8 +47,6 @@ load_data <- function() {
                      database="City of Los Angeles - Postgres")
   
   data$closeddate <- as.Date(as.character(strptime(data$closeddate, "%m/%d/%Y"))) 
-  #above not working replaced with s striptime function 
-  #data$ClosedDate <- strptime(data$ClosedDate, "%m/%d/%Y %H:%M:%S", tz='America/Los_Angeles').cast()
   
   data <- data %>% filter(!is.na(closeddate)) #drops all open cases, but seems to not actually be dropping anything
   
@@ -70,7 +68,6 @@ load_data <- function() {
   )
   
   data <- data %>% 
-           #select(-c('index')) %>%
            rename(
                   'action_taken' = 'actiontaken',
                   'address_verified' = 'addressverified',

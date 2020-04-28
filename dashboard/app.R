@@ -314,28 +314,28 @@ server <- function(input, output) {
       "Coronavirus Cases in CA",
       # the method below grabs all the columns with either CA or LA county, selects the "date" columns 
       # then grabs the latest one and sums (or just is for rendering)
-      coronavirus_cases %>% filter(str_detect(`Province/State`, ", CA")) %>% select(ends_with("20")) %>% select(tail(names(.), 1)) %>% sum()
+      coronavirus_cases %>% filter(str_detect(`Province_State`, ", CA")) %>% select(ends_with("20")) %>% select(tail(names(.), 1)) %>% sum()
     )
   })
   
   output$coronavirusCasesLAC <- renderInfoBox({
     infoBox(
       "Coronavirus Cases in LA County",
-      coronavirus_cases %>% filter(`Province/State` == "Los Angeles, CA") %>% select(ends_with("20")) %>% select(tail(names(.), 1))
+      coronavirus_cases %>% filter(`Province_State` == "Los Angeles, CA") %>% select(ends_with("20")) %>% select(tail(names(.), 1))
     )
   })
   
   output$coronavirusDeathsCA <- renderInfoBox({
     infoBox(
       "Coronavirus Deaths in CA",
-      coronavirus_deaths %>% filter(str_detect(`Province/State`, ", CA")) %>% select(ends_with("20")) %>% select(tail(names(.), 1)) %>% sum()
+      coronavirus_deaths %>% filter(str_detect(`Province_State`, ", CA")) %>% select(ends_with("20")) %>% select(tail(names(.), 1)) %>% sum()
     )
   })
   
   output$coronavirusDeathsLAC <- renderInfoBox({
     infoBox(
       "Coronavirus Deaths in LA County",
-      coronavirus_deaths %>% filter(`Province/State` == "Los Angeles, CA") %>% select(ends_with("20")) %>% select(tail(names(.), 1))
+      coronavirus_deaths %>% filter(`Province_State` == "Los Angeles, CA") %>% select(ends_with("20")) %>% select(tail(names(.), 1))
     )
   })
   ########################################
