@@ -92,8 +92,8 @@ load_data <- function() {
                   'street_name' = 'streetname',
                   'updated_date' = 'updateddate'
                    )
-  # data$closed_date <- data$closed_date %>% as_datetime()
-  # data$created_date <- data$created_date %>% as_datetime()
+ 
+  data$created_date <- as.Date(as.character(strptime(data$created_date, "%m/%d/%Y"))) 
   
   # only load 2016 to present.  
   data <- data %>% filter(created_date > '2016-01-01')
