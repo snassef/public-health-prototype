@@ -28,10 +28,10 @@ latimes_neighborhoods <- sf::st_read(
 # CORONAVIRUS 
 
 coronavirus_deaths <- read_csv(
-  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv"
+  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv"
 )
 coronavirus_cases <- read_csv(
-  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv"
+  "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv"
 )
 
 county_boundary <- sf::st_read('../data/la_county.geojson')
@@ -39,17 +39,22 @@ county_boundary <- sf::st_read('../data/la_county.geojson')
 state_boundary <- sf::st_read('../data/state-boundary.geojson')
 
   
-my_table <- "scratch.homelessness_cases_311"
+my_table <- "public_health.homelessness_cases_311"
 
 load_data <- function() {
+
   data <- read_civis(my_table, 
                      database="City of Los Angeles - Postgres")
   
-  data$closeddate <- as_date(data$closeddate, "%m/%d/%Y") 
-  #above not working replaced with s striptime function 
-  #data$ClosedDate <- strptime(data$ClosedDate, "%m/%d/%Y %H:%M:%S", tz='America/Los_Angeles').cast()
+<<<<<<< HEAD
+  data$closeddate <- as_date(data$closeddate, "%m/%d/%Y") ##Added in date notation to support differnt source data
+
+  data <- data %>% filter(!is.na(closeddate)) #re-wrote with filter, previous code was giving error when running
+=======
+  data$closeddate <- as.Date(as.character(strptime(data$closeddate, "%m/%d/%Y"))) 
   
   data <- data %>% filter(!is.na(closeddate)) #drops all open cases, but seems to not actually be dropping anything
+>>>>>>> d36726f9a42bda2f3ed3fbacfb5a3c8d2c1c526c
   
     #' This script loads the data files and ensures the correct data types are used
   
@@ -69,7 +74,6 @@ load_data <- function() {
   )
   
   data <- data %>% 
-           select(-c('index')) %>%
            rename(
                   'action_taken' = 'actiontaken',
                   'address_verified' = 'addressverified',
@@ -94,17 +98,23 @@ load_data <- function() {
                   'street_name' = 'streetname',
                   'updated_date' = 'updateddate'
                    )
+<<<<<<< HEAD
+  
   # data$closed_date <- data$closed_date %>% as_datetime()
   # data$created_date <- data$created_date %>% as_datetime()
+=======
+ 
+  data$created_date <- as.Date(as.character(strptime(data$created_date, "%m/%d/%Y"))) 
+>>>>>>> d36726f9a42bda2f3ed3fbacfb5a3c8d2c1c526c
   
   # only load 2016 to present.  
   data <- data %>% filter(created_date > '2016-01-01')
   return(data)
 }
 
-#summarize_cleanstat <- function() {
-#  cleanstat <- tbl(con, dbplyr::in_schema('"public-health"','"cleanstat"')) %>%
-#    filter(Year ==  "2018") %>%
-#    filter(Quarter == "Q3") %>%
-#    collect()
-#}
+summarize_cleanstat <- function() {
+ 
+  cleanstat <- read_civis('public_health.cleanstat','City of Los Angeles - Postgres') %>%
+              filter(Year ==  "2018") %>%
+              filter(Quarter == "Q3")
+}

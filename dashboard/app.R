@@ -1,4 +1,3 @@
-#install.packages(c("RPostgres", "sf"))
 library(shiny)
 library(shinydashboard)
 library(tidyverse)
@@ -15,6 +14,7 @@ source("value_counts.R")
 
 # Read data -------------------------------------------------------------------- 
 data <- load_data()
+
 geo_data <- data %>%
   drop_na("longitude", "latitude") %>%
   sf::st_as_sf(coords=c("longitude", "latitude"), crs=4326)
@@ -314,28 +314,28 @@ server <- function(input, output) {
       "Coronavirus Cases in CA",
       # the method below grabs all the columns with either CA or LA county, selects the "date" columns 
       # then grabs the latest one and sums (or just is for rendering)
-      coronavirus_cases %>% filter(str_detect(`Province/State`, ", CA")) %>% select(ends_with("20")) %>% select(tail(names(.), 1)) %>% sum()
+      coronavirus_cases %>% filter(str_detect(`Province_State`, "California")) %>% select(ends_with("20")) %>% select(tail(names(.), 1)) %>% sum()
     )
   })
   
   output$coronavirusCasesLAC <- renderInfoBox({
     infoBox(
       "Coronavirus Cases in LA County",
-      coronavirus_cases %>% filter(`Province/State` == "Los Angeles, CA") %>% select(ends_with("20")) %>% select(tail(names(.), 1))
+      coronavirus_cases %>% filter(`Admin2` == "Los Angeles") %>% select(ends_with("20")) %>% select(tail(names(.), 1))
     )
   })
   
   output$coronavirusDeathsCA <- renderInfoBox({
     infoBox(
       "Coronavirus Deaths in CA",
-      coronavirus_deaths %>% filter(str_detect(`Province/State`, ", CA")) %>% select(ends_with("20")) %>% select(tail(names(.), 1)) %>% sum()
+      coronavirus_deaths %>% filter(str_detect(`Province_State`, "California")) %>% select(ends_with("20")) %>% select(tail(names(.), 1)) %>% sum()
     )
   })
   
   output$coronavirusDeathsLAC <- renderInfoBox({
     infoBox(
       "Coronavirus Deaths in LA County",
-      coronavirus_deaths %>% filter(`Province/State` == "Los Angeles, CA") %>% select(ends_with("20")) %>% select(tail(names(.), 1))
+      coronavirus_deaths %>% filter(`Admin2` == "Los Angeles") %>% select(ends_with("20")) %>% select(tail(names(.), 1))
     )
   })
   ########################################
