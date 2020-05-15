@@ -4,10 +4,9 @@ library(sys)
 library(stringr)
 library(tidyverse)
 library(sf)
-library(civis)
+library(civis) #imported to use civis api calls
 
-
-
+##took out the postgres credentialing
 
 neighborhood_councils <- sf::st_read(
   "../data/neighborhood_council_boundaries.geojson"
@@ -29,16 +28,16 @@ latimes_neighborhoods <- sf::st_read(
 
 coronavirus_deaths <- read_csv(
   "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv"
-)
+) #old csv path not working
 coronavirus_cases <- read_csv(
   "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv"
-)
+) #old csv path not working
 
 county_boundary <- sf::st_read('../data/la_county.geojson')
 
 state_boundary <- sf::st_read('../data/state-boundary.geojson')
 
-
+#specifying table that gets passed into civis api, replaces postgres pull
 my_table <- "public_health.homelessness_cases_311"
 
 load_data <- function() {
@@ -46,15 +45,15 @@ load_data <- function() {
   data <- read_civis(my_table,
                      database="City of Los Angeles - Postgres")
 
-=======
   data$closeddate <- as.Date(as.character(strptime(data$closeddate, "%m/%d/%Y")))
+  data$created_date <- as.Date(as.character(strptime(data$created_date, "%m/%d/%Y")))
+  #rewrote date function since dates imported a little differnlty than when tbl() was used
 
-  data <- data %>% filter(!is.na(closeddate)) #drops all open cases, but seems to not actually be dropping anything
->>>>>>> d36726f9a42bda2f3ed3fbacfb5a3c8d2c1c526c
+  data <- data %>% filter(!is.na(closeddate)) #tweeked code to support presumably differnt data types
 
     #' This script loads the data files and ensures the correct data types are used
 
-  # column names with proper spacing / underscores
+    # column names with proper spacing / underscores
   col_names_311 <- c(
     "srn_number", "created_date", "updated_date", "action_taken",
     "owner", "request_type", "status", "request_source",
@@ -94,20 +93,14 @@ load_data <- function() {
                   'street_name' = 'streetname',
                   'updated_date' = 'updateddate'
                    )
-
-  data$created_date <- as.Date(as.character(strptime(data$created_date, "%m/%d/%Y")))
-=======
-
-  data$created_date <- as.Date(as.character(strptime(data$created_date, "%m/%d/%Y")))
->>>>>>> d36726f9a42bda2f3ed3fbacfb5a3c8d2c1c526c
-
+                    
   # only load 2016 to present.
   data <- data %>% filter(created_date > '2016-01-01')
   return(data)
 }
 
 summarize_cleanstat <- function() {
-
+  #pulling from civis instead of postgres
   cleanstat <- read_civis('public_health.cleanstat','City of Los Angeles - Postgres') %>%
               filter(Year ==  "2018") %>%
               filter(Quarter == "Q3")
