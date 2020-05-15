@@ -25,7 +25,7 @@ latimes_neighborhoods <- sf::st_read(
   "http://boundaries.latimes.com/1.0/boundary-set/la-county-neighborhoods-current/?format=geojson"
 )
 
-# CORONAVIRUS 
+# CORONAVIRUS
 
 coronavirus_deaths <- read_csv(
   "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_US.csv"
@@ -38,27 +38,23 @@ county_boundary <- sf::st_read('../data/la_county.geojson')
 
 state_boundary <- sf::st_read('../data/state-boundary.geojson')
 
-  
+
 my_table <- "public_health.homelessness_cases_311"
 
 load_data <- function() {
 
-  data <- read_civis(my_table, 
+  data <- read_civis(my_table,
                      database="City of Los Angeles - Postgres")
-  
-<<<<<<< HEAD
-  data$closeddate <- as_date(data$closeddate, "%m/%d/%Y") ##Added in date notation to support differnt source data
 
-  data <- data %>% filter(!is.na(closeddate)) #re-wrote with filter, previous code was giving error when running
 =======
-  data$closeddate <- as.Date(as.character(strptime(data$closeddate, "%m/%d/%Y"))) 
-  
+  data$closeddate <- as.Date(as.character(strptime(data$closeddate, "%m/%d/%Y")))
+
   data <- data %>% filter(!is.na(closeddate)) #drops all open cases, but seems to not actually be dropping anything
 >>>>>>> d36726f9a42bda2f3ed3fbacfb5a3c8d2c1c526c
-  
+
     #' This script loads the data files and ensures the correct data types are used
-  
-  # column names with proper spacing / underscores 
+
+  # column names with proper spacing / underscores
   col_names_311 <- c(
     "srn_number", "created_date", "updated_date", "action_taken",
     "owner", "request_type", "status", "request_source",
@@ -72,8 +68,8 @@ load_data <- function() {
     "neighborhood_council_code", "neighborhood_council_name",
     "police_precinct"
   )
-  
-  data <- data %>% 
+
+  data <- data %>%
            rename(
                   'action_taken' = 'actiontaken',
                   'address_verified' = 'addressverified',
@@ -92,28 +88,26 @@ load_data <- function() {
                   'reason_code' = 'reasoncode',
                   'request_source' = 'requestsource',
                   'request_type' = 'requesttype',
-                  'resolution_code' = 'resolutioncode', 
+                  'resolution_code' = 'resolutioncode',
                   'service_date' = 'servicedate',
                   'service_request_number' = 'srnumber',
                   'street_name' = 'streetname',
                   'updated_date' = 'updateddate'
                    )
-<<<<<<< HEAD
-  
-  # data$closed_date <- data$closed_date %>% as_datetime()
-  # data$created_date <- data$created_date %>% as_datetime()
+
+  data$created_date <- as.Date(as.character(strptime(data$created_date, "%m/%d/%Y")))
 =======
- 
-  data$created_date <- as.Date(as.character(strptime(data$created_date, "%m/%d/%Y"))) 
+
+  data$created_date <- as.Date(as.character(strptime(data$created_date, "%m/%d/%Y")))
 >>>>>>> d36726f9a42bda2f3ed3fbacfb5a3c8d2c1c526c
-  
-  # only load 2016 to present.  
+
+  # only load 2016 to present.
   data <- data %>% filter(created_date > '2016-01-01')
   return(data)
 }
 
 summarize_cleanstat <- function() {
- 
+
   cleanstat <- read_civis('public_health.cleanstat','City of Los Angeles - Postgres') %>%
               filter(Year ==  "2018") %>%
               filter(Quarter == "Q3")
