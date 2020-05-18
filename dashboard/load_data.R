@@ -46,7 +46,6 @@ load_data <- function() {
                      database="City of Los Angeles - Postgres")
 
   data$closeddate <- as.Date(as.character(strptime(data$closeddate, "%m/%d/%Y")))
-  data$createddate <- as.Date(as.character(strptime(data$created_date, "%m/%d/%Y")))
   #rewrote date function since dates imported a little differnlty than when tbl() was used
 
   data <- data %>% filter(!is.na(closeddate)) #tweeked code to support presumably differnt data types
@@ -93,6 +92,7 @@ load_data <- function() {
                   'street_name' = 'streetname',
                   'updated_date' = 'updateddate'
                    )
+data$created_date <- as.Date(as.character(strptime(data$created_date, "%m/%d/%Y")))
 
   # only load 2016 to present.
   data <- data %>% filter(created_date > '2016-01-01')
